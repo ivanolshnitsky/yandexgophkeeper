@@ -5,13 +5,7 @@ import (
 	"net/http"
 )
 
-/*
-Handler обрабатывает HTTP-запросы аутентификации.
-
-Отвечает за:
-- регистрацию пользователя
-- логин пользователя
-*/
+// Handler обрабатывает HTTP-запросы аутентификации.
 type Handler struct {
 	service *Service
 	jwt     *JWTService
@@ -31,25 +25,17 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
-/*
-Register регистрирует нового пользователя.
-
-Request:
-POST /register
-
-	{
-	  "username": "user",
-	  "password": "pass"
-	}
-
-Response:
-201 Created
-*/
+// Register регистрирует нового пользователя.
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var in RegisterRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if in.Username == "" || in.Password == "" {
+		http.Error(w, "username and password required", http.StatusBadRequest)
 		return
 	}
 
@@ -61,29 +47,17 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-/*
-Login аутентифицирует пользователя и возвращает JWT-токен.
-
-Request:
-POST /login
-
-	{
-	  "username": "user",
-	  "password": "pass"
-	}
-
-Response:
-200 OK
-
-	{
-	  "token": "jwt..."
-	}
-*/
+// Login аутентифицирует пользователя и возвращает JWT-токен.
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var in RegisterRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if in.Username == "" || in.Password == "" {
+		http.Error(w, "username and password required", http.StatusBadRequest)
 		return
 	}
 
@@ -98,6 +72,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]string{
 		"token": token,
 	})

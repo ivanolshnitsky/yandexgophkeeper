@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 	"yandexgophkeeper/internal/auth"
+	"yandexgophkeeper/internal/config"
 
 	"go.uber.org/zap"
 
@@ -13,12 +14,13 @@ import (
 
 func TestHandlePing(t *testing.T) {
 	log := zap.NewNop()
+	cfg := config.New()
 
 	authService := auth.NewService()
 	jwtService := auth.NewJWTService("secret")
 	authHandler := auth.NewHandler(authService, jwtService)
 
-	app := New(log, authHandler)
+	app := New(log, authHandler, cfg.SecretKey)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()

@@ -27,6 +27,18 @@ func TestRegister(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
 
+func TestRegister_Empty(t *testing.T) {
+	h := setupHandler()
+
+	body := []byte(`{}`)
+	req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(body))
+	w := httptest.NewRecorder()
+
+	h.Register(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
 func TestLogin(t *testing.T) {
 	h := setupHandler()
 
