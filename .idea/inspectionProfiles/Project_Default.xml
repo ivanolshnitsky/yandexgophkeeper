@@ -1,0 +1,71 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="58">
+            <item index="0" class="java.lang.String" itemvalue="httpx" />
+            <item index="1" class="java.lang.String" itemvalue="filetype" />
+            <item index="2" class="java.lang.String" itemvalue="pytest_xdist" />
+            <item index="3" class="java.lang.String" itemvalue="mypy" />
+            <item index="4" class="java.lang.String" itemvalue="python-dateutil" />
+            <item index="5" class="java.lang.String" itemvalue="psycopg2" />
+            <item index="6" class="java.lang.String" itemvalue="psycopg2-binary" />
+            <item index="7" class="java.lang.String" itemvalue="graphene_file_upload" />
+            <item index="8" class="java.lang.String" itemvalue="pycparser" />
+            <item index="9" class="java.lang.String" itemvalue="dogpile_cache" />
+            <item index="10" class="java.lang.String" itemvalue="opentelemetry-instrumentation-requests" />
+            <item index="11" class="java.lang.String" itemvalue="redis" />
+            <item index="12" class="java.lang.String" itemvalue="lxml" />
+            <item index="13" class="java.lang.String" itemvalue="sqlalchemy_utils" />
+            <item index="14" class="java.lang.String" itemvalue="cryptography" />
+            <item index="15" class="java.lang.String" itemvalue="sentry_sdk" />
+            <item index="16" class="java.lang.String" itemvalue="pytest_sugar" />
+            <item index="17" class="java.lang.String" itemvalue="sqlalchemy_easy_profile" />
+            <item index="18" class="java.lang.String" itemvalue="click" />
+            <item index="19" class="java.lang.String" itemvalue="opentelemetry-instrumentation-redis" />
+            <item index="20" class="java.lang.String" itemvalue="opentelemetry-instrumentation-httpx" />
+            <item index="21" class="java.lang.String" itemvalue="sqlalchemy_json" />
+            <item index="22" class="java.lang.String" itemvalue="graphql_relay" />
+            <item index="23" class="java.lang.String" itemvalue="idna" />
+            <item index="24" class="java.lang.String" itemvalue="autoflake" />
+            <item index="25" class="java.lang.String" itemvalue="maturin" />
+            <item index="26" class="java.lang.String" itemvalue="pytest_mock" />
+            <item index="27" class="java.lang.String" itemvalue="google-cloud-storage" />
+            <item index="28" class="java.lang.String" itemvalue="Jinja2" />
+            <item index="29" class="java.lang.String" itemvalue="graphene" />
+            <item index="30" class="java.lang.String" itemvalue="psycopg2cffi" />
+            <item index="31" class="java.lang.String" itemvalue="covador" />
+            <item index="32" class="java.lang.String" itemvalue="graphql-server" />
+            <item index="33" class="java.lang.String" itemvalue="graphql_core" />
+            <item index="34" class="java.lang.String" itemvalue="celery" />
+            <item index="35" class="java.lang.String" itemvalue="pytest-cov" />
+            <item index="36" class="java.lang.String" itemvalue="start_auth" />
+            <item index="37" class="java.lang.String" itemvalue="opentelemetry-instrumentation-psycopg2" />
+            <item index="38" class="java.lang.String" itemvalue="websockets" />
+            <item index="39" class="java.lang.String" itemvalue="billiard" />
+            <item index="40" class="java.lang.String" itemvalue="blinker" />
+            <item index="41" class="java.lang.String" itemvalue="pyspf" />
+            <item index="42" class="java.lang.String" itemvalue="pytest" />
+            <item index="43" class="java.lang.String" itemvalue="black" />
+            <item index="44" class="java.lang.String" itemvalue="pytest_asyncio" />
+            <item index="45" class="java.lang.String" itemvalue="sanic-testing" />
+            <item index="46" class="java.lang.String" itemvalue="pytest_datafiles" />
+            <item index="47" class="java.lang.String" itemvalue="pytest_redis" />
+            <item index="48" class="java.lang.String" itemvalue="sanic" />
+            <item index="49" class="java.lang.String" itemvalue="babel" />
+            <item index="50" class="java.lang.String" itemvalue="cachetools" />
+            <item index="51" class="java.lang.String" itemvalue="yarl" />
+            <item index="52" class="java.lang.String" itemvalue="grpcio" />
+            <item index="53" class="java.lang.String" itemvalue="isort" />
+            <item index="54" class="java.lang.String" itemvalue="frozendict" />
+            <item index="55" class="java.lang.String" itemvalue="pytest-pycodestyle" />
+            <item index="56" class="java.lang.String" itemvalue="sanic-ext" />
+            <item index="57" class="java.lang.String" itemvalue="ujson" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
