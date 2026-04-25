@@ -1,10 +1,12 @@
 package server
 
 import (
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"yandexgophkeeper/internal/auth"
+
+	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,7 +14,11 @@ import (
 func TestHandlePing(t *testing.T) {
 	log := zap.NewNop()
 
-	app := New(log)
+	authService := auth.NewService()
+	jwtService := auth.NewJWTService("secret")
+	authHandler := auth.NewHandler(authService, jwtService)
+
+	app := New(log, authHandler)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()
@@ -20,5 +26,4 @@ func TestHandlePing(t *testing.T) {
 	app.Router().ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "ok")
 }

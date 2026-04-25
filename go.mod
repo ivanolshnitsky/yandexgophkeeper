@@ -4,9 +4,11 @@ go 1.25
 
 require (
 	github.com/go-chi/chi/v5 v5.0.10
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.27.0
+	golang.org/x/crypto v0.16.0
 )
 
 require (
