@@ -15,6 +15,8 @@ type AppConfig struct {
 	SecretKey     string `mapstructure:"secret_key"`
 }
 
+// New загружает конфиг с приоритетом:
+// defaults < config file < flags < ENV
 func New() *AppConfig {
 	const (
 		defaultServerAddress = "localhost:8080"
