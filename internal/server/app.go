@@ -61,7 +61,12 @@ func (a *App) routes() {
 			return auth.Middleware(a.secret, next)
 		})
 
-		r.Post("/data", a.dataHandler.Create)
-		r.Get("/data", a.dataHandler.List)
+		r.Route("/data", func(r chi.Router) {
+			r.Post("/", a.dataHandler.Create)
+			r.Get("/", a.dataHandler.List)
+			r.Get("/{id}", a.dataHandler.Get)
+			r.Put("/{id}", a.dataHandler.Update)
+			r.Delete("/{id}", a.dataHandler.Delete)
+		})
 	})
 }

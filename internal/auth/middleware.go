@@ -45,7 +45,6 @@ func Middleware(secret string, next http.Handler) http.Handler {
 			return
 		}
 
-		// 🔥 ВОТ ГДЕ ИСПОЛЬЗУЕТСЯ UserKey
 		ctx := context.WithValue(r.Context(), UserKey, username)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
