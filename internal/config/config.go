@@ -10,14 +10,18 @@ import (
 
 type AppConfig struct {
 	ServerAddress string `mapstructure:"server_address"`
+	ClientURL     string `mapstructure:"client_address"`
 	BaseURL       string `mapstructure:"base_url"`
 	LogLevel      string `mapstructure:"log_level"`
 	SecretKey     string `mapstructure:"secret_key"`
 }
 
+// New загружает конфиг с приоритетом:
+// defaults < config file < flags < ENV
 func New() *AppConfig {
 	const (
 		defaultServerAddress = "localhost:8080"
+		defaultClientURL     = "http://localhost:8080"
 		defaultBaseURL       = "http://localhost:8080"
 		defaultLogLevel      = "info"
 		defaultSecretKey     = "super-secret-key"
@@ -26,6 +30,7 @@ func New() *AppConfig {
 	fs := flag.NewFlagSet("gophkeeper", flag.ContinueOnError)
 
 	flagServer := fs.String("a", "", "server address")
+	flagClient := fs.String("u", "", "client url")
 	flagBase := fs.String("b", "", "base url")
 	flagLog := fs.String("l", "", "log level")
 
@@ -42,6 +47,7 @@ func New() *AppConfig {
 
 	// defaults
 	v.SetDefault("server_address", defaultServerAddress)
+	v.SetDefault("client_url", defaultClientURL)
 	v.SetDefault("base_url", defaultBaseURL)
 	v.SetDefault("log_level", defaultLogLevel)
 	v.SetDefault("secret_key", defaultSecretKey)
@@ -59,6 +65,9 @@ func New() *AppConfig {
 	// flags
 	if *flagServer != "" {
 		v.Set("server_address", *flagServer)
+	}
+	if *flagClient != "" {
+		v.Set("client_url", *flagClient)
 	}
 	if *flagBase != "" {
 		v.Set("base_url", *flagBase)
