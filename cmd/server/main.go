@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"yandexgophkeeper/internal/auth"
 
 	"yandexgophkeeper/internal/config"
 	"yandexgophkeeper/internal/logger"
@@ -24,7 +25,12 @@ func main() {
 	}
 	defer func() { _ = log.Sync() }()
 
-	app := server.New(log)
+	authService := auth.NewService()
+	jwtService := auth.NewJWTService(cfg.SecretKey)
+
+	authHandler := auth.NewHandler(authService, jwtService)
+
+	app := server.New(log, authHandler, cfg)
 
 	srv := &http.Server{
 		Addr:    cfg.ServerAddress,
