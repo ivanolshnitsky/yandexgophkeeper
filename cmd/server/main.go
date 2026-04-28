@@ -30,7 +30,7 @@ func main() {
 
 	authHandler := auth.NewHandler(authService, jwtService)
 
-	app := server.New(log, authHandler, cfg.SecretKey)
+	app := server.New(log, authHandler, cfg)
 
 	srv := &http.Server{
 		Addr:    cfg.ServerAddress,

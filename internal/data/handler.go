@@ -12,17 +12,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// Handler обрабатывает данные пользователя
+// Handler обрабатывает данные пользователя.
 type Handler struct {
-	storage *storage.MemoryStorage
+	storage storage.Storage
 }
 
-// NewHandler создаёт handler
-func NewHandler(s *storage.MemoryStorage) *Handler {
+// NewHandler создаёт handler.
+func NewHandler(s storage.Storage) *Handler {
 	return &Handler{storage: s}
 }
 
-// CreateRequest универсальный запрос
+// CreateRequest универсальный запрос.
 type CreateRequest struct {
 	Type  string          `json:"type"`
 	Value json.RawMessage `json:"value"`
@@ -52,7 +52,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		Meta:  req.Meta,
 	}
 
-	h.storage.Save(user, d)
+	if err := h.storage.Save(user, d); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 }
@@ -61,7 +64,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(auth.UserKey).(string)
 
-	data := h.storage.List(user)
+	data, err := h.storage.List(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(data)
@@ -72,7 +79,11 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(auth.UserKey).(string)
 	id := chi.URLParam(r, "id")
 
-	d, ok := h.storage.GetByID(user, id)
+	d, ok, err := h.storage.GetByID(user, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	if !ok {
 		http.NotFound(w, r)
 		return
@@ -105,7 +116,12 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		Meta:  req.Meta,
 	}
 
-	if !h.storage.Update(user, d) {
+	ok, err := h.storage.Update(user, d)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -118,7 +134,12 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(auth.UserKey).(string)
 	id := chi.URLParam(r, "id")
 
-	if !h.storage.Delete(user, id) {
+	ok, err := h.storage.Delete(user, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}

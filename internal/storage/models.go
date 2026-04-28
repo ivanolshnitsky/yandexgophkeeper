@@ -2,7 +2,6 @@ package storage
 
 import "encoding/json"
 
-// DataType тип данных
 type DataType string
 
 const (
@@ -12,7 +11,7 @@ const (
 	TypeBinary     DataType = "binary"
 )
 
-// Data универсальная модель хранения
+// Data — универсальная модель данных.
 type Data struct {
 	ID    string          `json:"id"`
 	User  string          `json:"user"`

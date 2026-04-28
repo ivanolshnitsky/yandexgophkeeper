@@ -84,7 +84,7 @@ func (a *App) ListData() ([]map[string]any, error) {
 	req, _ := http.NewRequest(http.MethodGet, a.serverAddr+"/data", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := a.client.Do(req)
 	if err != nil {
 		return nil, err
 	}

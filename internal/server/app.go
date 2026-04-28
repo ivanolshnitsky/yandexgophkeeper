@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"yandexgophkeeper/internal/config"
 	"yandexgophkeeper/internal/data"
 	"yandexgophkeeper/internal/storage"
 
@@ -22,10 +23,21 @@ type App struct {
 	secret string
 }
 
-func New(log *zap.Logger, authHandler *auth.Handler, secret string) *App {
+func New(log *zap.Logger, authHandler *auth.Handler, cfg *config.AppConfig) *App {
 	r := chi.NewRouter()
 
-	store := storage.NewMemory()
+	var store storage.Storage
+
+	if cfg.StorageType == "postgres" {
+		pg, err := storage.NewPostgres(cfg.DatabaseDSN)
+		if err != nil {
+			log.Fatal("postgres init failed", zap.Error(err))
+		}
+		store = pg
+	} else {
+		store = storage.NewMemory()
+	}
+
 	dataHandler := data.NewHandler(store)
 
 	app := &App{
@@ -33,7 +45,7 @@ func New(log *zap.Logger, authHandler *auth.Handler, secret string) *App {
 		log:         log,
 		authHandler: authHandler,
 		dataHandler: dataHandler,
-		secret:      secret,
+		secret:      cfg.SecretKey,
 	}
 
 	r.Use(func(next http.Handler) http.Handler {
@@ -41,7 +53,6 @@ func New(log *zap.Logger, authHandler *auth.Handler, secret string) *App {
 	})
 
 	app.routes()
-
 	return app
 }
 

@@ -12,37 +12,62 @@ func TestMemoryStorage_CRUD(t *testing.T) {
 	}
 
 	// Save
-	s.Save("user", d)
+	if err := s.Save("user", d); err != nil {
+		t.Fatalf("save failed: %v", err)
+	}
 
-	if len(s.List("user")) != 1 {
+	list, err := s.List("user")
+	if err != nil {
+		t.Fatalf("list failed: %v", err)
+	}
+
+	if len(list) != 1 {
 		t.Fatal("expected 1 item after save")
 	}
 
 	// GetByID
-	got, ok := s.GetByID("user", "1")
+	got, ok, err := s.GetByID("user", "1")
+	if err != nil {
+		t.Fatalf("get by id failed: %v", err)
+	}
 	if !ok || got.ID != "1" {
 		t.Fatal("failed to get by id")
 	}
 
 	// Update
 	d.Meta = "updated"
-	ok = s.Update("user", d)
+
+	ok, err = s.Update("user", d)
+	if err != nil {
+		t.Fatalf("update failed: %v", err)
+	}
 	if !ok {
-		t.Fatal("update failed")
+		t.Fatal("update returned false")
 	}
 
-	got, _ = s.GetByID("user", "1")
-	if got.Meta != "updated" {
+	got, ok, err = s.GetByID("user", "1")
+	if err != nil {
+		t.Fatalf("get after update failed: %v", err)
+	}
+	if !ok || got.Meta != "updated" {
 		t.Fatal("update not applied")
 	}
 
 	// Delete
-	ok = s.Delete("user", "1")
+	ok, err = s.Delete("user", "1")
+	if err != nil {
+		t.Fatalf("delete failed: %v", err)
+	}
 	if !ok {
-		t.Fatal("delete failed")
+		t.Fatal("delete returned false")
 	}
 
-	if len(s.List("user")) != 0 {
+	list, err = s.List("user")
+	if err != nil {
+		t.Fatalf("list after delete failed: %v", err)
+	}
+
+	if len(list) != 0 {
 		t.Fatal("expected empty after delete")
 	}
 }

@@ -3,18 +3,42 @@ package main
 import (
 	"fmt"
 	"os"
-	"yandexgophkeeper/internal/config"
 
 	"yandexgophkeeper/internal/client"
+	"yandexgophkeeper/internal/config"
 )
+
+var (
+	buildVersion = "dev"
+	buildDate    = "unknown"
+)
+
+func printUsage() {
+	fmt.Println(`
+	Usage:
+	  register <user> <pass>
+	  login <user> <pass>
+	  add <type> <value> <meta>
+	  list
+	  get <id>
+	  update <id> <type> <value> <meta>
+	  delete <id>
+	  version
+	`)
+}
+
+func printVersion() {
+	fmt.Println("version:", buildVersion)
+	fmt.Println("date:", buildDate)
+}
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("usage: register|login|add|list")
+		printUsage()
 		return
 	}
-	cfg := config.New()
 
+	cfg := config.New()
 	app := client.New(cfg.ClientURL)
 
 	switch os.Args[1] {
@@ -50,6 +74,7 @@ func main() {
 			return
 		}
 		fmt.Println(data)
+
 	case "get":
 		if len(os.Args) < 3 {
 			fmt.Println("usage: get <id>")
@@ -74,7 +99,11 @@ func main() {
 		err := app.DeleteData(os.Args[2])
 		fmt.Println("delete:", err)
 
+	case "version":
+		printVersion()
+
 	default:
 		fmt.Println("unknown command")
+		printUsage()
 	}
 }

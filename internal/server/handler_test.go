@@ -20,7 +20,7 @@ func TestHandlePing(t *testing.T) {
 	jwtService := auth.NewJWTService("secret")
 	authHandler := auth.NewHandler(authService, jwtService)
 
-	app := New(log, authHandler, cfg.SecretKey)
+	app := New(log, authHandler, cfg)
 
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 	w := httptest.NewRecorder()

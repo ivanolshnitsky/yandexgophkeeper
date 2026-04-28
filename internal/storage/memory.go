@@ -4,75 +4,72 @@ import "sync"
 
 // MemoryStorage in-memory хранилище
 type MemoryStorage struct {
-	mu    sync.RWMutex
-	store map[string][]Data
+	mu   sync.RWMutex
+	data map[string][]Data
 }
 
 // NewMemory создаёт storage
 func NewMemory() *MemoryStorage {
 	return &MemoryStorage{
-		store: make(map[string][]Data),
+		data: make(map[string][]Data),
 	}
 }
 
 // Save сохраняет данные
-func (m *MemoryStorage) Save(user string, d Data) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+func (s *MemoryStorage) Save(user string, d Data) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-	m.store[user] = append(m.store[user], d)
+	s.data[user] = append(s.data[user], d)
+	return nil
 }
 
 // List возвращает данные пользователя
-func (m *MemoryStorage) List(user string) []Data {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+func (s *MemoryStorage) List(user string) ([]Data, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	return m.store[user]
+	return s.data[user], nil
 }
 
 // GetByID возвращает запись по id
-func (m *MemoryStorage) GetByID(user, id string) (Data, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+func (s *MemoryStorage) GetByID(user, id string) (Data, bool, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	for _, d := range m.store[user] {
+	for _, d := range s.data[user] {
 		if d.ID == id {
-			return d, true
+			return d, true, nil
 		}
 	}
-	return Data{}, false
+	return Data{}, false, nil
 }
 
 // Update обновляет запись
-func (m *MemoryStorage) Update(user string, updated Data) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+func (s *MemoryStorage) Update(user string, d Data) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-	items := m.store[user]
-
-	for i, d := range items {
-		if d.ID == updated.ID {
-			items[i] = updated
-			m.store[user] = items
-			return true
+	for i, v := range s.data[user] {
+		if v.ID == d.ID {
+			s.data[user][i] = d
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
 // Delete удаляет запись
-func (m *MemoryStorage) Delete(user, id string) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+func (s *MemoryStorage) Delete(user, id string) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-	items := m.store[user]
-
-	for i, d := range items {
-		if d.ID == id {
-			m.store[user] = append(items[:i], items[i+1:]...)
-			return true
+	items := s.data[user]
+	for i, v := range items {
+		if v.ID == id {
+			s.data[user] = append(items[:i], items[i+1:]...)
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
