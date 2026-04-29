@@ -1,7 +1,6 @@
 package config
 
 import (
-	"flag"
 	"os"
 	"strings"
 
@@ -10,67 +9,37 @@ import (
 
 type AppConfig struct {
 	ServerAddress string `mapstructure:"server_address"`
-	BaseURL       string `mapstructure:"base_url"`
+	ClientURL     string `mapstructure:"client_url"`
 	LogLevel      string `mapstructure:"log_level"`
 	SecretKey     string `mapstructure:"secret_key"`
+
+	StorageType string `mapstructure:"storage_type"`
+	DatabaseDSN string `mapstructure:"database_dsn"`
 }
 
 func New() *AppConfig {
-	const (
-		defaultServerAddress = "localhost:8080"
-		defaultBaseURL       = "http://localhost:8080"
-		defaultLogLevel      = "info"
-		defaultSecretKey     = "super-secret-key"
-	)
-
-	fs := flag.NewFlagSet("gophkeeper", flag.ContinueOnError)
-
-	flagServer := fs.String("a", "", "server address")
-	flagBase := fs.String("b", "", "base url")
-	flagLog := fs.String("l", "", "log level")
-
-	var configPath string
-	fs.StringVar(&configPath, "c", "", "config file path")
-
-	_ = fs.Parse(os.Args[1:])
-
-	if envConfig := os.Getenv("CONFIG"); envConfig != "" {
-		configPath = envConfig
-	}
-
 	v := viper.New()
 
-	// defaults
-	v.SetDefault("server_address", defaultServerAddress)
-	v.SetDefault("base_url", defaultBaseURL)
-	v.SetDefault("log_level", defaultLogLevel)
-	v.SetDefault("secret_key", defaultSecretKey)
+	v.SetDefault("server_address", "localhost:8080")
+	v.SetDefault("client_url", "http://localhost:8080")
+	v.SetDefault("log_level", "info")
+	v.SetDefault("secret_key", "super-secret-key")
 
-	// config file
-	if configPath != "" {
-		v.SetConfigFile(configPath)
-		_ = v.ReadInConfig()
-	}
+	v.SetDefault("storage_type", "memory")
+	v.SetDefault("database_dsn", "postgres://user:pass@localhost:5432/gophkeeper?sslmode=disable")
 
-	// ENV
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// flags
-	if *flagServer != "" {
-		v.Set("server_address", *flagServer)
-	}
-	if *flagBase != "" {
-		v.Set("base_url", *flagBase)
-	}
-	if *flagLog != "" {
-		v.Set("log_level", *flagLog)
+	if cfg := os.Getenv("CONFIG"); cfg != "" {
+		v.SetConfigFile(cfg)
+		_ = v.ReadInConfig()
 	}
 
-	cfg := &AppConfig{}
-	if err := v.Unmarshal(cfg); err != nil {
+	var c AppConfig
+	if err := v.Unmarshal(&c); err != nil {
 		panic(err)
 	}
 
-	return cfg
+	return &c
 }

@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"yandexgophkeeper/internal/auth"
 	"yandexgophkeeper/internal/config"
 	"yandexgophkeeper/internal/logger"
 	"yandexgophkeeper/internal/server"
@@ -24,7 +25,11 @@ func main() {
 	}
 	defer func() { _ = log.Sync() }()
 
-	app := server.New(log)
+	authService := auth.NewService()
+	jwtService := auth.NewJWTService(cfg.SecretKey)
+	authHandler := auth.NewHandler(authService, jwtService)
+
+	app := server.New(log, authHandler, cfg)
 
 	srv := &http.Server{
 		Addr:    cfg.ServerAddress,
@@ -39,7 +44,6 @@ func main() {
 		}
 	}()
 
-	// graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
@@ -52,6 +56,8 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Error("shutdown failed", zap.Error(err))
 	}
+
+	_ = app.Close()
 
 	log.Info("server exited")
 }
