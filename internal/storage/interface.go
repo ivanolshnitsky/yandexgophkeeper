@@ -7,4 +7,5 @@ type Storage interface {
 	GetByID(user, id string) (Data, bool, error)
 	Update(user string, d Data) (bool, error)
 	Delete(user, id string) (bool, error)
+	Close() error
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 type App struct {
@@ -16,7 +17,9 @@ type App struct {
 func New(addr string) *App {
 	return &App{
 		serverAddr: addr,
-		client:     &http.Client{},
+		client: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 	}
 }
 

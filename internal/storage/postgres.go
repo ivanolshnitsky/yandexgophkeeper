@@ -12,65 +12,57 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// PostgresStorage реализует Storage через PostgreSQL.
 type PostgresStorage struct {
 	db *sql.DB
 }
 
-// NewPostgres создаёт подключение к БД и запускает миграции.
 func NewPostgres(dsn string) (*PostgresStorage, error) {
 	if err := runMigrations(dsn); err != nil {
-		return nil, fmt.Errorf("run migrations: %w", err)
+		return nil, fmt.Errorf("migrations: %w", err)
 	}
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("open db: %w", err)
+		return nil, err
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("ping db: %w", err)
+		return nil, err
 	}
 
 	return &PostgresStorage{db: db}, nil
 }
 
-// runMigrations применяет миграции.
 func runMigrations(dsn string) error {
 	m, err := migrate.New("file://migrations", dsn)
 	if err != nil {
-		return fmt.Errorf("migrate init: %w", err)
+		return err
 	}
 
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return fmt.Errorf("migrate up: %w", err)
+		return err
 	}
 
 	return nil
 }
 
-// Save сохраняет данные пользователя.
 func (p *PostgresStorage) Save(user string, d Data) error {
 	_, err := p.db.Exec(
-		`INSERT INTO data (id, user_id, type, value, meta)
-		 VALUES ($1,$2,$3,$4,$5)`,
-		d.ID, user, d.Type, d.Value, d.Meta,
+		`INSERT INTO data (id, user_id, type, value, meta, updated_at)
+		 VALUES ($1,$2,$3,$4,$5,$6)`,
+		d.ID, user, d.Type, d.Value, d.Meta, d.UpdatedAt,
 	)
-	if err != nil {
-		return fmt.Errorf("insert data: %w", err)
-	}
-
-	return nil
+	return err
 }
 
-// List возвращает все данные пользователя.
 func (p *PostgresStorage) List(user string) ([]Data, error) {
 	rows, err := p.db.Query(
-		`SELECT id, user_id, type, value, meta FROM data WHERE user_id=$1`,
+		`SELECT id, user_id, type, value, meta, updated_at 
+		 FROM data WHERE user_id=$1`,
 		user,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("query list: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -78,34 +70,37 @@ func (p *PostgresStorage) List(user string) ([]Data, error) {
 
 	for rows.Next() {
 		var d Data
-		if err := rows.Scan(&d.ID, &d.User, &d.Type, &d.Value, &d.Meta); err != nil {
-			return nil, fmt.Errorf("scan row: %w", err)
+		if err := rows.Scan(
+			&d.ID,
+			&d.User,
+			&d.Type,
+			&d.Value,
+			&d.Meta,
+			&d.UpdatedAt,
+		); err != nil {
+			return nil, err
 		}
 		res = append(res, d)
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows error: %w", err)
-	}
-
-	return res, nil
+	return res, rows.Err()
 }
 
-// GetByID возвращает запись по ID.
 func (p *PostgresStorage) GetByID(user, id string) (Data, bool, error) {
 	var d Data
 
 	err := p.db.QueryRow(
-		`SELECT id, user_id, type, value, meta 
+		`SELECT id, user_id, type, value, meta, updated_at
 		 FROM data WHERE user_id=$1 AND id=$2`,
 		user, id,
-	).Scan(&d.ID, &d.User, &d.Type, &d.Value, &d.Meta)
+	).Scan(&d.ID, &d.User, &d.Type, &d.Value, &d.Meta, &d.UpdatedAt)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return Data{}, false, nil
 	}
+
 	if err != nil {
-		return Data{}, false, fmt.Errorf("get by id: %w", err)
+		return Data{}, false, err
 	}
 
 	return d, true, nil
@@ -115,20 +110,20 @@ func (p *PostgresStorage) GetByID(user, id string) (Data, bool, error) {
 func (p *PostgresStorage) Update(user string, d Data) (bool, error) {
 	res, err := p.db.Exec(
 		`UPDATE data 
-		 SET type=$1, value=$2, meta=$3 
-		 WHERE id=$4 AND user_id=$5`,
-		d.Type, d.Value, d.Meta, d.ID, user,
+		 SET type=$1, value=$2, meta=$3, updated_at=$4
+		 WHERE id=$5 AND user_id=$6`,
+		d.Type, d.Value, d.Meta, d.UpdatedAt, d.ID, user,
 	)
 	if err != nil {
 		return false, fmt.Errorf("update data: %w", err)
 	}
 
-	rows, err := res.RowsAffected()
+	n, err := res.RowsAffected()
 	if err != nil {
 		return false, fmt.Errorf("rows affected: %w", err)
 	}
 
-	return rows > 0, nil
+	return n > 0, nil
 }
 
 // Delete удаляет запись.
@@ -141,10 +136,15 @@ func (p *PostgresStorage) Delete(user, id string) (bool, error) {
 		return false, fmt.Errorf("delete data: %w", err)
 	}
 
-	rows, err := res.RowsAffected()
+	n, err := res.RowsAffected()
 	if err != nil {
 		return false, fmt.Errorf("rows affected: %w", err)
 	}
 
-	return rows > 0, nil
+	return n > 0, nil
+}
+
+// Close закрывает соединение.
+func (p *PostgresStorage) Close() error {
+	return p.db.Close()
 }

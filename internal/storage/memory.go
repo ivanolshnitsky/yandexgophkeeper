@@ -73,3 +73,7 @@ func (s *MemoryStorage) Delete(user, id string) (bool, error) {
 	}
 	return false, nil
 }
+
+func (s *MemoryStorage) Close() error {
+	return nil
+}

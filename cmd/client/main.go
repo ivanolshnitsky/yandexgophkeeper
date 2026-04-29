@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -48,24 +49,34 @@ func main() {
 			fmt.Println("usage: register <user> <pass>")
 			return
 		}
-		err := app.Register(os.Args[2], os.Args[3])
-		fmt.Println("register:", err)
+		if err := app.Register(os.Args[2], os.Args[3]); err != nil {
+			fmt.Println("register error:", err)
+			return
+		}
+		fmt.Println("ok")
 
 	case "login":
 		if len(os.Args) < 4 {
 			fmt.Println("usage: login <user> <pass>")
 			return
 		}
-		err := app.Login(os.Args[2], os.Args[3])
-		fmt.Println("login:", err)
+		if err := app.Login(os.Args[2], os.Args[3]); err != nil {
+			fmt.Println("login error:", err)
+			return
+		}
+		fmt.Println("ok")
 
 	case "add":
 		if len(os.Args) < 5 {
-			fmt.Println("usage: add <type> <value> <meta>")
+			fmt.Println("usage: add <type> <json_value> <meta>")
 			return
 		}
-		err := app.AddData(os.Args[2], os.Args[3], os.Args[4])
-		fmt.Println("add:", err)
+
+		if err := app.AddData(os.Args[2], json.RawMessage(os.Args[3]), os.Args[4]); err != nil {
+			fmt.Println("error:", err)
+			return
+		}
+		fmt.Println("ok")
 
 	case "list":
 		data, err := app.ListData()
@@ -80,24 +91,37 @@ func main() {
 			fmt.Println("usage: get <id>")
 			return
 		}
+
 		res, err := app.GetData(os.Args[2])
-		fmt.Println(res, err)
+		if err != nil {
+			fmt.Println("error:", err)
+			return
+		}
+		fmt.Println(res)
 
 	case "update":
 		if len(os.Args) < 6 {
 			fmt.Println("usage: update <id> <type> <value> <meta>")
 			return
 		}
-		err := app.UpdateData(os.Args[2], os.Args[3], os.Args[4], os.Args[5])
-		fmt.Println("update:", err)
+
+		if err := app.UpdateData(os.Args[2], os.Args[3], os.Args[4], os.Args[5]); err != nil {
+			fmt.Println("update error:", err)
+			return
+		}
+		fmt.Println("ok")
 
 	case "delete":
 		if len(os.Args) < 3 {
 			fmt.Println("usage: delete <id>")
 			return
 		}
-		err := app.DeleteData(os.Args[2])
-		fmt.Println("delete:", err)
+
+		if err := app.DeleteData(os.Args[2]); err != nil {
+			fmt.Println("delete error:", err)
+			return
+		}
+		fmt.Println("ok")
 
 	case "version":
 		printVersion()
