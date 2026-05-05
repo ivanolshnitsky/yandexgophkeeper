@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS data (
+    id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(100) NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    value TEXT NOT NULL,
+    meta TEXT,
+    updated_at TIMESTAMP NOT NULL
+);
